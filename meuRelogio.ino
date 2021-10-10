@@ -18,6 +18,7 @@
 #define m2 5
 #define h 11
 #define nil 12
+#define dot 14
 
 // notes in the melody:
 int melody[] = {
@@ -81,18 +82,10 @@ int alarme_hora, alarme_minuto;
 //Modulo RTC DS1307 ligado as portas A4 e A5 do Arduino
 DS1307 rtc(A4, A5);
 
-int num[4];
 void setup()
 {
 	//Aciona o relogio
 	rtc.halt(false);
-	// definido o pino do sensor de presença como entrada de sinal
-	//As linhas abaixo setam a data e hora do modulo
-	//e podem ser comentada apos a primeira utilizacao
-	rtc.setdayOfWeek(THURSDAY); //Define o dia da semana
-	//rtc.setTime(16, 26, 0);     //Define o horario
-	//rtc.setDate(1, 10, 2021);   //Define o dia, mes e ano
-
 	//Definicoes do pino SQW/Out
 	rtc.setSQWRate(SQW_RATE_1);
 	rtc.enableSQW(true);
@@ -102,12 +95,13 @@ void setup()
 		pinMode(i, OUTPUT);
 		digitalWrite(i, 0);
 	}
-
+	pinMode(16, OUTPUT);
+	digitalWrite(16, 1);
 	alarme_hora = EEPROM.read(0)*10+EEPROM.read(1);
 	alarme_minuto = EEPROM.read(2)*10+EEPROM.read(3);
 	Serial.begin(115200);
 }
-
+// meter um init.
 void loop()
 {
 	Serial.println("ALARME: "+String(alarme_hora) + ":" + String(alarme_minuto));
@@ -115,18 +109,24 @@ void loop()
 	bool ct2 = true;
 	bool fg1 = false;
 	bool fg2 = false;
-	int botao;
-	bool ctrl= true;
+	int botao, previous, current;
+	bool ctrl= true,ctrlSecondsBlink = false,ctrlSecondsBlinkFlag = true ;
+	int num[6];
 	char *dayOW, dayOfWeek;
 	while (1)
-	{
+	{	
+		previous = num[5];
 		rtc.getTimeInt(num);
-		dayOW = rtc.getdayOfWeekStr(FORMAT_SHORT);
+		current = num[5];
+		ctrlSecondsBlink = blinkDots(&previous, &current, ctrlSecondsBlink);
+		Serial.println(current);
+
+		dayOW = rtc.getDOWStr(FORMAT_SHORT);
 		dayOfWeek = dayOW[0];
-		relogio(num[0], num[1], num[2], num[3], 5);
+		relogio(num[0], num[1], num[2], num[3], 5, ctrlSecondsBlink);
 		if( dayOfWeek != 'S' && alarme_hora == num[0]*10+num[1] && alarme_minuto == num[2]*10+num[3] && ctrl){
 			ctrl = false;
-			melodia();
+			melodia(num);
 			ct1 = false;
 			ct2 = false;
 			delay(10000);
@@ -150,7 +150,14 @@ void loop()
 	}
 }
 
-void melodia()
+bool blinkDots(int *secondsPrev, int *secondsCurr, bool ctrlSecondsBlink){
+
+	if(*secondsPrev != *secondsCurr){
+		*secondsPrev = *secondsCurr;
+		return !ctrlSecondsBlink;
+	}
+}
+void melodia(int *num)
 {
 	// iterate over the notes of the melody:
 	unsigned long timeNote = millis();
@@ -189,7 +196,7 @@ void melodia()
 			if(ant != num[3] || botao == 1 || botao == 2){
 				thisNote = 9;
 			}
-			relogio(num[0], num[1], num[2], num[3], 1);
+			relogio(num[0], num[1], num[2], num[3], 1, true);
 		}
 		
 	}
@@ -212,7 +219,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	ha3 = alarme_minuto%10;
 	//num[0]*10 + num[1];
 	//num[2]*10 + num[3];
-	int controle_funcao = 1, bt;
+	int controle_funcao = 1, clickButton;
 	while (1)
 	{
 
@@ -254,17 +261,17 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 			}
 		}else if (clickButton == 2)
 		{
-			t++;
+			controle_funcao++;
 		}
-		if (t == 1)
+		if (controle_funcao== 1)
 		{
-			relogio(10, 10, ha2, ha3, 20);
+			relogio(10, 10, ha2, ha3, 20, true);
 		}
-		else if (t == 2)
+		else if (controle_funcao== 2)
 		{
-			relogio(ha0, ha1, h, nil, 20);
+			relogio(ha0, ha1, h, nil, 20, true);
 		}
-		else if (t > 2)
+		else if (controle_funcao > 2)
 		{
 			Serial.println("Alarm out");
 			break;
@@ -303,7 +310,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	ha2 = num[2];
 	ha3 = num[3];
 	rtc.getTimeInt(num);
-	dayOW = rtc.getdayOfWeekStr(FORMAT_SHORT);
+	dayOW = rtc.getDOWStr(FORMAT_SHORT);
 	//Serial.println(dayOW);
 	for(int i =1; i < 8; i++){
 		if(dayOW[0] == dayowStr[i]){
@@ -468,33 +475,39 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 		}
 		else if (clickButton == 2)
 		{
-			t++;
+			controle_funcao++;
 		}
-		if (t == 1)
+		if (controle_funcao == 1)
 		{
-			relogio(10, 10, ha2, ha3, 10);
+			//configurar minuto
+			relogio(10, 10, ha2, ha3, 10, true);
 		}
-		else if (t == 2)
+		else if (controle_funcao == 2)
 		{
-			relogio(ha0, ha1, h, nil, 10);
+			//configurar hora
+			relogio(ha0, ha1, h, nil, 10, true);
 		}
-		else if (t == 3)
+		else if (controle_funcao == 3)
 		{
-			relogio(2, 0, anoD, anoU, 15);
+			//configurar ano
+			relogio(2, 0, anoD, anoU, 15, false);
 		}
-		else if (t == 4)
+		else if (controle_funcao == 4)
 		{
-			relogio(13, 13, mesD, mesU, 15);
+			//configurar mes
+			relogio(13, 13, mesD, mesU, 15, true);
 		}
-		else if (t == 5)
+		else if (controle_funcao == 5)
 		{
-			relogio(diaD, diaU, 13, 13, 15);
+			//configurar dia
+			relogio(diaD, diaU, 13, 13, 15, true);
 		}
-		else if (t == 6)
+		else if (controle_funcao == 6)
 		{
-			relogio(dayOfWeek, 13, 13, 13, 18);
+			//configurar dia da semana
+			relogio(dayOfWeek, 13, 13, 13, 18, true);
 		}
-		else if (t > 5)
+		else if (controle_funcao > 5)
 		{
 			Serial.println("config out");
 			break;
@@ -505,7 +518,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	ano = 2000 + anoD * 10 + anoU;
 	hora = ha0 * 10 + ha1;
 	minuto = ha2 * 10 + ha3;
-	rtc.setdayOfWeek(dayOfWeek);
+	rtc.setDOW(dayOfWeek);
 	rtc.setTime(hora, minuto, 0); //Define o horario
 	rtc.setDate(dia, mes, ano);	  //Define o dia, mes e ano
 }
@@ -544,20 +557,25 @@ void clean()
 	}
 }
 
-void relogio(int i, int j, int k, int l, int tempo)
+void relogio(int i, int j, int k, int l, int tempo, bool blinkFlag)
 {
-	printNumb(i, h1, tempo);
-	printNumb(j, h2, tempo);
-	printNumb(k, m1, tempo);
-	printNumb(l, m2, tempo);
+	printNumb(i, h1, tempo, blinkFlag);
+	printNumb(j, h2, tempo, blinkFlag);
+	printNumb(k, m1, tempo, blinkFlag);
+	printNumb(l, m2, tempo, blinkFlag);
 }
 
-void printNumb(int num, int ds, int tempo)
+void printNumb(int num, int ds, int tempo, bool blickFlag)
 {
 	clean();
 	for (int i = 0; i < 8; i++)
 	{
 		digitalWrite(numbs[num][i], 1);
+	}
+	if(blickFlag){
+		digitalWrite(16, 1);
+	}else{
+		digitalWrite(16, 0);
 	}
 	digitalWrite(ds, 1);
 	delay(tempo);
