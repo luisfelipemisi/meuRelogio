@@ -105,51 +105,56 @@ void setup()
 void loop()
 {
 	Serial.println("ALARME: "+String(alarme_hora) + ":" + String(alarme_minuto));
-	bool ct1 = true;
-	bool ct2 = true;
+	bool ctrlClick_1 = true;
+	bool ctrlClick_2 = true;
 	bool fg1 = false;
 	bool fg2 = false;
 	int botao, previous, current;
-	bool ctrl= true,ctrlSecondsBlink = false,ctrlSecondsBlinkFlag = true ;
+	bool ctrl= true,ctrlSecondsBlink = false;
 	int num[6];
+	unsigned long timeStandBy = millis();
 	char *dayOW, dayOfWeek;
 	while (1)
 	{	
-		previous = num[5];
-		rtc.getTimeInt(num);
-		current = num[5];
-		ctrlSecondsBlink = blinkDots(&previous, &current, ctrlSecondsBlink);
-		Serial.println(current);
-
 		dayOW = rtc.getDOWStr(FORMAT_SHORT);
 		dayOfWeek = dayOW[0];
-		relogio(num[0], num[1], num[2], num[3], 5, ctrlSecondsBlink);
-		if( dayOfWeek != 'S' && alarme_hora == num[0]*10+num[1] && alarme_minuto == num[2]*10+num[3] && ctrl){
+		dysplayRelogio(num, &previous, &current, &ctrlSecondsBlink, 5);
+		if(dayOfWeek != 'S' && alarme_hora == num[0]*10+num[1] && alarme_minuto == num[2]*10+num[3] && ctrl){
 			ctrl = false;
 			melodia(num);
-			ct1 = false;
-			ct2 = false;
-			delay(10000);
+			timeStandBy = millis();
+			while(1){
+				dysplayRelogio(num, &previous, &current, &ctrlSecondsBlink,10);
+				if(millis() - timeStandBy > 10000){
+					break;
+				}
+			}
 		}else if (alarme_minuto != num[2]*10+num[3] && !ctrl){
 			ctrl = true;
 		}
 
-		botao = button(&ct1, &ct2, &fg1, &fg2);
+		botao = button(&ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
 		if (botao == 2)
 		{
-			ct1 = false;
-			ct2 = false;
-			confRelogio(num, &ct1, &ct2, &fg1, &fg2);
+			ctrlClick_1 = false;
+			ctrlClick_2 = false;
+			confRelogio(num, &ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
 		}
 		else if (botao == 1)
 		{
-			ct1 = false;
-			ct2 = false;
-			alarme(num, &ct1, &ct2, &fg1, &fg2);
+			ctrlClick_1 = false;
+			ctrlClick_2 = false;
+			alarme(num, &ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
 		}
 	}
 }
-
+void dysplayRelogio(int *num, int *previous, int *current, bool *ctrlSecondsBlink, int timeUpdateDisplay){
+	*previous = num[5];
+	rtc.getTimeInt(num);
+	*current = num[5];
+	*ctrlSecondsBlink = blinkDots(previous, current, *ctrlSecondsBlink);
+	relogio(num[0], num[1], num[2], num[3], timeUpdateDisplay, *ctrlSecondsBlink);
+}
 bool blinkDots(int *secondsPrev, int *secondsCurr, bool ctrlSecondsBlink){
 
 	if(*secondsPrev != *secondsCurr){
@@ -164,8 +169,8 @@ void melodia(int *num)
 	unsigned long timeToReadTime = millis();
 	int ant, botao=0;
 	bool ctrl = false;
-	bool ct1 = false;
-	bool ct2 = false;
+	bool ctrlClick_1 = false;
+	bool ctrlClick_2 = false;
 	bool fg1 = false;
 	bool fg2 = false;
 	for (int thisNote = 0; thisNote < 8; )
@@ -190,13 +195,13 @@ void melodia(int *num)
 		if (millis() - timeToReadTime > 10) 
 		{
 			timeToReadTime = millis();
-			botao = button(&ct1, &ct2, &fg1, &fg2);
+			botao = button(&ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
 			ant = num[3];
 			rtc.getTimeInt(num);
 			if(ant != num[3] || botao == 1 || botao == 2){
 				thisNote = 9;
 			}
-			relogio(num[0], num[1], num[2], num[3], 1, true);
+			relogio(num[0], num[1], num[2], num[3], 5, true);
 		}
 		
 	}
@@ -227,7 +232,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 		minuto = ha2 * 10 + ha3;
 		//Serial.println(String(dia) + ":"+ String(mes)+":"+String(ano));
 		clickButton = button(ctrl1, ctrl2, flag1, flag2);
-		if (clickButton == 1 && controle_funcao == 1)
+		if (clickButton == 2 && controle_funcao == 1)
 		{
 			if (ha3 + 1 < 10)
 			{
@@ -243,7 +248,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				ha2 = 0;
 				ha3 = 0;
 			}
-		}else if (clickButton == 1 && controle_funcao == 2)
+		}else if (clickButton == 2 && controle_funcao == 2)
 		{
 			if (ha1 + 1 <= 9 && hora + 1 < 24)
 			{
@@ -259,7 +264,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				ha0 = 0;
 				ha1 = 0;
 			}
-		}else if (clickButton == 2)
+		}else if (clickButton == 1)
 		{
 			controle_funcao++;
 		}
