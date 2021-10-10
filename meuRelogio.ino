@@ -89,7 +89,7 @@ void setup()
 	// definido o pino do sensor de presença como entrada de sinal
 	//As linhas abaixo setam a data e hora do modulo
 	//e podem ser comentada apos a primeira utilizacao
-	rtc.setDOW(THURSDAY); //Define o dia da semana
+	rtc.setdayOfWeek(THURSDAY); //Define o dia da semana
 	//rtc.setTime(16, 26, 0);     //Define o horario
 	//rtc.setDate(1, 10, 2021);   //Define o dia, mes e ano
 
@@ -117,18 +117,19 @@ void loop()
 	bool fg2 = false;
 	int botao;
 	bool ctrl= true;
-	char *dayOW, dow;
+	char *dayOW, dayOfWeek;
 	while (1)
 	{
 		rtc.getTimeInt(num);
-		dayOW = rtc.getDOWStr(FORMAT_SHORT);
-		dow = dayOW[0];
-		relogio(num[0], num[1], num[2], num[3], 1);
-		if(if dow != 'S' && alarme_hora == num[0]*10+num[1] && alarme_minuto == num[2]*10+num[3] && ctrl){
+		dayOW = rtc.getdayOfWeekStr(FORMAT_SHORT);
+		dayOfWeek = dayOW[0];
+		relogio(num[0], num[1], num[2], num[3], 5);
+		if( dayOfWeek != 'S' && alarme_hora == num[0]*10+num[1] && alarme_minuto == num[2]*10+num[3] && ctrl){
 			ctrl = false;
 			melodia();
 			ct1 = false;
 			ct2 = false;
+			delay(10000);
 		}else if (alarme_minuto != num[2]*10+num[3] && !ctrl){
 			ctrl = true;
 		}
@@ -205,21 +206,21 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 		dataInt[i] = cc - '0';
 		//Serial.println(dataInt[i]);
 	}
-	ha0 = num[0];
-	ha1 = num[1];
-	ha2 = num[2];
-	ha3 = num[3];
+	ha0 = alarme_hora/10;
+	ha1 = alarme_hora%10;
+	ha2 = alarme_minuto/10;
+	ha3 = alarme_minuto%10;
 	//num[0]*10 + num[1];
 	//num[2]*10 + num[3];
-	int t = 1, bt;
+	int controle_funcao = 1, bt;
 	while (1)
 	{
 
 		hora = ha0 * 10 + ha1;
 		minuto = ha2 * 10 + ha3;
 		//Serial.println(String(dia) + ":"+ String(mes)+":"+String(ano));
-		bt = button(ctrl1, ctrl2, flag1, flag2);
-		if (bt == 1 && t == 1)
+		clickButton = button(ctrl1, ctrl2, flag1, flag2);
+		if (clickButton == 1 && controle_funcao == 1)
 		{
 			if (ha3 + 1 < 10)
 			{
@@ -235,7 +236,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				ha2 = 0;
 				ha3 = 0;
 			}
-		}else if (bt == 1 && t == 2)
+		}else if (clickButton == 1 && controle_funcao == 2)
 		{
 			if (ha1 + 1 <= 9 && hora + 1 < 24)
 			{
@@ -251,7 +252,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				ha0 = 0;
 				ha1 = 0;
 			}
-		}else if (bt == 2)
+		}else if (clickButton == 2)
 		{
 			t++;
 		}
@@ -281,8 +282,9 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 {
 	Serial.println("config mode");
-	int dow,ha0, ha1, ha2, ha3, dataInt[10], diaD, diaU, mesD, mesU, anoD, anoU, dia, mes, ano, limDias, hora, minuto;
-	char cc, aux[10], *novaData = rtc.getDateStr(FORMAT_SHORT, FORMAT_LITTLEENDIAN, '.');
+	int dayOfWeek,ha0, ha1, ha2, ha3, dataInt[10], diaD, diaU, mesD, mesU, anoD, anoU, dia, mes, ano, limDias, hora, minuto;
+	char *dayOW, cc, aux[10], *novaData = rtc.getDateStr(FORMAT_SHORT, FORMAT_LITTLEENDIAN, '.');
+	char dayowStr[8] = {'1', 'M', 'T','W','T','F','S','S'};
 	for (int i = 0; i < 10; i++)
 	{
 		cc = novaData[i];
@@ -300,9 +302,17 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	ha1 = num[1];
 	ha2 = num[2];
 	ha3 = num[3];
+	rtc.getTimeInt(num);
+	dayOW = rtc.getdayOfWeekStr(FORMAT_SHORT);
+	//Serial.println(dayOW);
+	for(int i =1; i < 8; i++){
+		if(dayOW[0] == dayowStr[i]){
+			dayOfWeek = i;
+		}
+	}
 	//num[0]*10 + num[1];
 	//num[2]*10 + num[3];
-	int t = 1, bt;
+	int controle_funcao = 1, clickButton;
 	while (1)
 	{
 
@@ -312,8 +322,8 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 		hora = ha0 * 10 + ha1;
 		minuto = ha2 * 10 + ha3;
 		//Serial.println(String(dia) + ":"+ String(mes)+":"+String(ano));
-		bt = button(ctrl1, ctrl2, flag1, flag2);
-		if (bt == 1 && t == 1)
+		clickButton = button(ctrl1, ctrl2, flag1, flag2);
+		if (clickButton == 1 && controle_funcao == 1)
 		{
 			if (ha3 + 1 < 10)
 			{
@@ -330,7 +340,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				ha3 = 0;
 			}
 		}
-		else if (bt == 1 && t == 2)
+		else if (clickButton == 1 && controle_funcao == 2)
 		{
 			if (ha1 + 1 <= 9 && hora + 1 < 24)
 			{
@@ -347,7 +357,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				ha1 = 0;
 			}
 		}
-		else if (bt == 1 && t == 3)
+		else if (clickButton == 1 && controle_funcao == 3)
 		{
 			if (anoU + 1 <= 9)
 			{
@@ -364,7 +374,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				anoU = 1;
 			}
 		}
-		else if (bt == 1 && t == 4)
+		else if (clickButton == 1 && controle_funcao == 4)
 		{
 			if (mesU + 1 <= 9 && mes + 1 <= 12)
 			{
@@ -381,7 +391,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				mesU = 1;
 			}
 		}
-		else if (bt == 1 && t == 5)
+		else if (clickButton == 1 && controle_funcao == 5)
 		{
 
 			if (mes <= 7 && mes % 2 != 0)
@@ -445,18 +455,18 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				diaU = 1;
 			}
 		}
-		if (bt == 1 && t == 6)
+		if (clickButton == 1 && controle_funcao == 6)
 		{
-			if (dow + 1 < 8)
+			if (dayOfWeek + 1 < 8)
 			{
-				dow++;
+				dayOfWeek++;
 			}
 			else
 			{
-				dow = 1;
+				dayOfWeek = 1;
 			}
 		}
-		else if (bt == 2)
+		else if (clickButton == 2)
 		{
 			t++;
 		}
@@ -482,7 +492,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 		}
 		else if (t == 6)
 		{
-			relogio(dow, 13, 13, 13, 18);
+			relogio(dayOfWeek, 13, 13, 13, 18);
 		}
 		else if (t > 5)
 		{
@@ -495,7 +505,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	ano = 2000 + anoD * 10 + anoU;
 	hora = ha0 * 10 + ha1;
 	minuto = ha2 * 10 + ha3;
-	rtc.setDOW(dow);
+	rtc.setdayOfWeek(dayOfWeek);
 	rtc.setTime(hora, minuto, 0); //Define o horario
 	rtc.setDate(dia, mes, ano);	  //Define o dia, mes e ano
 }
