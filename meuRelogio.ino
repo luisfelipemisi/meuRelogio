@@ -632,7 +632,6 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 					minuto--;
 					if(minuto < 0 && segundos < 0){
 						ctrlFuncao = true;
-						count++;
 						segundos=0;
 						song(ctrl1, ctrl2, flag1, flag2, songAlarm);
 					}else{
@@ -654,17 +653,18 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 		
 		
 		if(ctrlFuncao){
-			if( funcao == 0 && ( count == 1 || count == 3 || count == 5)){
-				//mando para o shortbreak
-				funcao = 1;
-			}else if( funcao == 1 && ( count == 2 || count == 4 || count == 6)){
-				//mando para o worktime
-				funcao = 0;
-			}else if( funcao == 0  && count == 7){
+			
+			if( funcao == 0  && count == 4){
 				//mando para o longbreak
 				funcao = 2;
-			}else if( funcao == 2  && count == 8){
-				//mando para o longbreak
+			}else if(funcao == 0 && count > 0){
+				//mando para o shortbreak
+				count++;
+				funcao = 1;
+			}else if( funcao == 1){
+				//mando para o worktime
+				funcao = 0;
+			}else if( funcao == 2 ){
 				count = 0;
 				funcao = 0;
 			}
