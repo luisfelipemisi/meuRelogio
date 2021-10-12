@@ -587,7 +587,7 @@ void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *
 		}else if(funcao == 2){
 			relogio(P,O, nil ,nil , 8, false);
 			if(botao == 1){
-				pomodoro(ctrl1, ctrl2, flag1, flag2, songAlarm);
+				pomodoro(ctrl1, ctrl2, flag1, flag2, *songAlarm);
 			}
 		}else if(funcao == 3){
 			relogio(5,O, N ,6 , 8, false);
@@ -640,15 +640,18 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 					}
 				}
 			}	
+		}else if (pause){
+			previous = current;
 		}
 		botao = button(ctrl1, ctrl2, flag1, flag2);
 		if(botao == 2){
 			ctrlFuncao = true;
 			segundos = 0;
 		}
-		if(botao == 1){
+		else if(botao == 1){
 			pause = !pause;
 		}
+		
 		
 		if(ctrlFuncao){
 			if( funcao == 0 && ( count == 1 || count == 3 || count == 5)){
