@@ -19,34 +19,39 @@
 #define h 11
 #define nil 12
 #define dot 14
+#define P	14
+#define O	15
+#define A	16
+#define L	17
+#define R	18
+#define C	19
+#define N	20
+#define F	21
+#define U	22
+#define T	23
+#define WORKTIME 25
+#define SHORTBREAK 5
+#define LONGBREAK 15
 
+	
 // notes in the melody:
+// change this to make the song slower or faster
+int tempo = 140;
+
+// change this to whichever pin you want to use
+int buzzer = 10;
+
+// notes of the moledy followed by the duration.
+// a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
+// !!negative numbers are used to represent dotted notes,
+// so -4 means a dotted quarter note, that is, a quarter plus an eighteenth!!
 int melody[] = {
-
-	NOTE_C2,
-	NOTE_AS4,
-	NOTE_C2,
-	NOTE_AS4,
-	NOTE_C2,
-	NOTE_AS4,
-	NOTE_C2,
-	NOTE_AS4,
+  
+  // The Lick 
+  NOTE_B3,2
+  
 };
-
-// note durations: 4 = quarter note, 8 = eighth note, etc.:
-int noteDurations[] = {
-
-	10,
-	2,
-	10,
-	2,
-	10,
-	2,
-	10,
-	2,
-
-};
-byte numbs[14][8] = {
+byte numbs[24][8] = {
 	//0
 	{a, b, c, d, e, f, 0, 0},
 	//1
@@ -71,11 +76,33 @@ byte numbs[14][8] = {
 	{0, 0, 0, 0, 0, g, 0, 0},
 	//h
 	{f, g, c, e, 0, 0, 0, 0},
-	//n
+	//null
 	{0, 0, 0, 0, 0, 0, 0, 0},
 	//_
-	{0, 0, 0, 0, 0, d, 0, 0}
-};
+	{0, 0, 0, 0, 0, d, 0, 0},
+	//P
+	{e, f, a, g, b, 0, 0, 0},
+	//O
+	{a, b, c, d, e, f, 0, 0},
+	//A
+	{a, b, c, 0, e, f, g, 0},
+	//L
+	{f, e, d, 0, 0, 0, 0, 0},
+	//R
+	{e, f, a, b, g, c, 0, 0},
+	//C
+	{d, e, f, a, 0, 0, 0, 0},
+	//N
+	{a, b, c, 0, e, f, 0, 0},
+	//F
+	{e, f, a, g, 0, 0, 0, 0},
+	//U
+	{0, b, c, d, e, f, 0, 0},
+	//T
+	{a, b, c, 0, 0, 0, 0, 0}
+	
+	};
+	
 
 int alarme_hora, alarme_minuto;
 
@@ -97,142 +124,282 @@ void setup()
 	}
 	pinMode(16, OUTPUT);
 	digitalWrite(16, 1);
-	alarme_hora = EEPROM.read(0)*10+EEPROM.read(1);
-	alarme_minuto = EEPROM.read(2)*10+EEPROM.read(3);
+	alarme_hora = EEPROM.read(0) * 10 + EEPROM.read(1);
+	alarme_minuto = EEPROM.read(2) * 10 + EEPROM.read(3);
 	Serial.begin(115200);
 }
 // meter um init.
 void loop()
 {
-	Serial.println("ALARME: "+String(alarme_hora) + ":" + String(alarme_minuto));
-	bool ctrlClick_1 = true;
-	bool ctrlClick_2 = true;
+	//Serial.println("ALARME: " + String(alarme_hora) + ":" + String(alarme_minuto));
+	bool ctrlClick_1 = false;
+	bool ctrlClick_2 = false;
 	bool fg1 = false;
 	bool fg2 = false;
 	int botao, previous, current;
-	bool ctrl= true,ctrlSecondsBlink = false;
+	bool ctrlAlarm = true, ctrlSecondsBlink = false;
 	int num[6];
-	unsigned long timeStandBy = millis();
-	char *dayOW, dayOfWeek;
+	unsigned long int timeStandBy = millis();
+	int dayOfWeek = rtc.getDOWInt();
+	Serial.println(dayOfWeek);
 	while (1)
-	{	
-		dayOW = rtc.getDOWStr(FORMAT_SHORT);
-		dayOfWeek = dayOW[0];
+	{
+		dayOfWeek = rtc.getDOWInt();
 		dysplayRelogio(num, &previous, &current, &ctrlSecondsBlink, 5);
-		if(dayOfWeek != 'S' && alarme_hora == num[0]*10+num[1] && alarme_minuto == num[2]*10+num[3] && ctrl){
-			ctrl = false;
-			melodia(num);
+		if (dayOfWeek != 6 && dayOfWeek != 7  && alarme_hora == num[0] * 10 + num[1] && alarme_minuto == num[2] * 10 + num[3] && ctrlAlarm )
+		{
+			ctrlAlarm = false;
+			activateAlarm(num, &ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
 			timeStandBy = millis();
-			while(1){
-				dysplayRelogio(num, &previous, &current, &ctrlSecondsBlink,10);
-				if(millis() - timeStandBy > 10000){
-					break;
-				}
+			while (millis() - timeStandBy < 10000)
+			{
+				dysplayRelogio(num, &previous, &current, &ctrlSecondsBlink, 10);
 			}
-		}else if (alarme_minuto != num[2]*10+num[3] && !ctrl){
-			ctrl = true;
+		}
+		else if (alarme_minuto != num[2] * 10 + num[3] && !ctrlAlarm )
+		{
+			ctrlAlarm = true;
 		}
 
 		botao = button(&ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
+
 		if (botao == 2)
-		{
-			ctrlClick_1 = false;
-			ctrlClick_2 = false;
-			confRelogio(num, &ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
-		}
-		else if (botao == 1)
-		{
-			ctrlClick_1 = false;
-			ctrlClick_2 = false;
-			alarme(num, &ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
+		{	
+			comands(num, &ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
 		}
 	}
 }
-void dysplayRelogio(int *num, int *previous, int *current, bool *ctrlSecondsBlink, int timeUpdateDisplay){
+
+void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
+	int botao = button(ctrl1, ctrl2, flag1, flag2), funcao =0;
+	unsigned long int timeToBack = millis();
+	while(1){
+		if(millis() - timeToBack > 60000){
+			return;
+		}
+		botao = button(ctrl1, ctrl2, flag1, flag2);
+		if (botao == 2)
+		{
+			funcao++;
+		}
+
+		if(funcao == 0){
+			relogio(A,L,A ,10 , 8, false);
+			if(botao == 1){
+				alarme(num, ctrl1, ctrl2, flag1, flag2);
+			}
+		}else if(funcao == 1){
+			relogio(C,O,N ,F , 8, false);
+			if(botao == 1){
+				confRelogio(num, ctrl1, ctrl2, flag1, flag2);
+			}
+		}else if(funcao == 2){
+			relogio(P,O, nil ,nil , 8, false);
+			if(botao == 1){
+				pomodoro(ctrl1, ctrl2, flag1, flag2);
+			}
+		}else if(funcao == 3){
+			return;
+		}
+	}
+}
+
+void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
+	int minuto, segundos = 0;
+	int pomoNum[6],previous,current,funcao = 0, botao, count =0;
+	bool ctrlWhile = true, ctrlFuncao = true ;
+	while(ctrlWhile){
+
+		if(!ctrlFuncao){
+			previous = 1;
+			//rtc.getTimeInt(pomoNum);
+			current = 2;
+			if(current != previous){
+				segundos--;
+				if(segundos < 0){
+					minuto--;
+					if(minuto < 0 && segundos < 0){
+						ctrlFuncao = true;
+						count++;
+						segundos=0;
+						song(ctrl1, ctrl2, flag1, flag2);
+					}else{
+						segundos = 59;
+					}
+				}
+			}	
+		}
+		botao = button(ctrl1, ctrl2, flag1, flag2);
+		if(botao == 1 || botao == 2){
+			ctrlFuncao = true;
+			segundos = 0;
+		}
+		if(ctrlFuncao){
+			if( funcao == 0 && ( count == 1 || count == 3 || count == 5)){
+				//mando para o shortbreak
+				funcao = 1;
+			}else if( funcao == 1 && ( count == 2 || count == 4 || count == 6)){
+				//mando para o worktime
+				funcao = 0;
+			}else if( funcao == 0  && count == 7){
+				//mando para o longbreak
+				funcao = 2;
+			}else if( funcao == 2  && count == 8){
+				//mando para o longbreak
+				count = 0;
+				funcao = 0;
+			}
+		}
+		while(ctrlFuncao){
+			
+			botao = button(ctrl1, ctrl2, flag1, flag2);
+
+			//pomodoro configurado
+			if(botao == 2){
+				funcao++;
+				if(funcao >3){
+					funcao = 0;
+				}
+			}else if(botao == 1 && funcao < 3){
+				//play
+				ctrlFuncao = false;
+			}else if(botao == 1 ){
+				return;
+			}
+
+			if(funcao == 0){
+				minuto = WORKTIME;
+				relogio( minuto/10, minuto%10 , segundos/10 , segundos%10 , 5 , true );
+			}
+			else if(funcao == 1){
+				minuto = SHORTBREAK;
+				relogio( minuto/10, minuto%10 , segundos/10 , segundos%10 , 5 , true );
+			}
+			else if(funcao == 2){
+				minuto = LONGBREAK;
+				relogio( minuto/10, minuto%10 , segundos/10 , segundos%10 , 5 , true );
+			}
+			else if(funcao == 3){
+				relogio( O , U , T , nil , 5 , false );
+			}
+			
+		}
+		relogio( minuto/10, minuto%10 , segundos/10 , segundos%10 , 5, true );
+	}
+	
+}
+
+void dysplayRelogio(int *num, int *previous, int *current, bool *ctrlSecondsBlink, int timeUpdateDisplay)
+{
 	*previous = num[5];
 	rtc.getTimeInt(num);
 	*current = num[5];
 	*ctrlSecondsBlink = blinkDots(previous, current, *ctrlSecondsBlink);
 	relogio(num[0], num[1], num[2], num[3], timeUpdateDisplay, *ctrlSecondsBlink);
 }
-bool blinkDots(int *secondsPrev, int *secondsCurr, bool ctrlSecondsBlink){
 
-	if(*secondsPrev != *secondsCurr){
+bool blinkDots(int *secondsPrev, int *secondsCurr, bool ctrlSecondsBlink)
+{
+
+	if (*secondsPrev != *secondsCurr)
+	{
 		*secondsPrev = *secondsCurr;
 		return !ctrlSecondsBlink;
 	}
 }
-void melodia(int *num)
+
+void activateAlarm(int *num,bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 {
 	// iterate over the notes of the melody:
-	unsigned long timeNote = millis();
 	unsigned long timeToReadTime = millis();
-	int ant, botao=0;
+	int ant, botao = 0;
 	bool ctrl = false;
-	bool ctrlClick_1 = false;
-	bool ctrlClick_2 = false;
-	bool fg1 = false;
-	bool fg2 = false;
-	for (int thisNote = 0; thisNote < 8; )
+	bool ctrlWhile = true;
+	
+
+	while (ctrlWhile)
 	{
-		int noteDuration = 1000 / noteDurations[thisNote];
-		int pauseBetweenNotes = noteDuration * 1.30;
-		if (millis() - timeNote < pauseBetweenNotes && ctrl) 
+		ctrlWhile = song(ctrl1, ctrl2, flag1, flag2);
+		timeToReadTime = millis();
+		while (ctrlWhile && millis() - timeToReadTime < 300)
 		{
-			ctrl = false;
-			tone(10, melody[thisNote], noteDuration);
-		}
-		else if(millis() - timeNote >= pauseBetweenNotes && !ctrl)
-		{
-			ctrl = true;
-			noTone(10);
-			thisNote++;
-			if(thisNote == 8){
-				thisNote = 0;
-			}
-			timeNote = millis();
-		}
-		if (millis() - timeToReadTime > 10) 
-		{
-			timeToReadTime = millis();
-			botao = button(&ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
+			botao = button(ctrl1, ctrl2, flag1, flag2);
 			ant = num[3];
 			rtc.getTimeInt(num);
-			if(ant != num[3] || botao == 1 || botao == 2){
-				thisNote = 9;
+			if (ant != num[3] || botao == 1 || botao == 2)
+			{
+				return ;
 			}
 			relogio(num[0], num[1], num[2], num[3], 5, true);
 		}
-		
 	}
+}
+
+bool song(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
+	int notes = sizeof(melody) / sizeof(melody[0]) / 2;
+	int wholenote = (60000 * 4) / tempo;
+	int divider = 0, noteDuration = 0;
+	int ant, botao = 0;
+	unsigned long int timeToReadTime = millis();
+	for (int thisNote = 0; thisNote < notes * 2; thisNote = thisNote + 2)
+		{
+			// calculates the duration of each note
+			divider = melody[thisNote + 1];
+			if (divider > 0)
+			{
+				// regular note, just proceed
+				noteDuration = (wholenote) / divider;
+			}
+			else if (divider < 0)
+			{
+				// dotted notes are represented with negative durations!!
+				noteDuration = (wholenote) / abs(divider);
+				noteDuration *= 1.5; // increases the duration in half for dotted notes
+			}
+
+			// we only play the note for 90% of the duration, leaving 10% as a pause
+			tone(buzzer, melody[thisNote], noteDuration * 0.9);
+
+			// Wait for the specief duration before playing the next note.
+			timeToReadTime = millis();
+			while (millis() - timeToReadTime < noteDuration)
+			{
+				botao = button(ctrl1, ctrl2, flag1, flag2);
+				if (botao == 1 || botao == 2)
+				{
+					return false;
+				}
+			}
+			//delay(noteDuration);
+
+			// stop the waveform generation before the next note.
+			noTone(buzzer);
+		}
+		return true;
 }
 
 void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 {
-	Serial.println("alarme mode");
 	int ha0, ha1, ha2, ha3, dataInt[10], diaD, diaU, mesD, mesU, anoD, anoU, dia, mes, ano, limDias, hora, minuto;
-	char cc, aux[10], *novaData = rtc.getDateStr(FORMAT_SHORT, FORMAT_LITTLEENDIAN, '.');
+	char cc, *novaData = rtc.getDateStr(FORMAT_SHORT, FORMAT_LITTLEENDIAN, '.');
 	for (int i = 0; i < 10; i++)
 	{
 		cc = novaData[i];
 		dataInt[i] = cc - '0';
-		//Serial.println(dataInt[i]);
 	}
-	ha0 = alarme_hora/10;
-	ha1 = alarme_hora%10;
-	ha2 = alarme_minuto/10;
-	ha3 = alarme_minuto%10;
-	//num[0]*10 + num[1];
-	//num[2]*10 + num[3];
+	ha0 = alarme_hora / 10;
+	ha1 = alarme_hora % 10;
+	ha2 = alarme_minuto / 10;
+	ha3 = alarme_minuto % 10;
 	int controle_funcao = 1, clickButton;
 	while (1)
 	{
-
 		hora = ha0 * 10 + ha1;
 		minuto = ha2 * 10 + ha3;
-		//Serial.println(String(dia) + ":"+ String(mes)+":"+String(ano));
+
 		clickButton = button(ctrl1, ctrl2, flag1, flag2);
-		if (clickButton == 2 && controle_funcao == 1)
+		
+		if (clickButton == 1 && controle_funcao == 1)
 		{
 			if (ha3 + 1 < 10)
 			{
@@ -248,7 +415,8 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				ha2 = 0;
 				ha3 = 0;
 			}
-		}else if (clickButton == 2 && controle_funcao == 2)
+		}
+		else if (clickButton == 1 && controle_funcao == 2)
 		{
 			if (ha1 + 1 <= 9 && hora + 1 < 24)
 			{
@@ -264,15 +432,17 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				ha0 = 0;
 				ha1 = 0;
 			}
-		}else if (clickButton == 1)
+		}
+		else if (clickButton == 2)
 		{
 			controle_funcao++;
 		}
-		if (controle_funcao== 1)
+		
+		if (controle_funcao == 1)
 		{
 			relogio(10, 10, ha2, ha3, 20, true);
 		}
-		else if (controle_funcao== 2)
+		else if (controle_funcao == 2)
 		{
 			relogio(ha0, ha1, h, nil, 20, true);
 		}
@@ -291,12 +461,12 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	EEPROM.write(2, ha2);
 	EEPROM.write(3, ha3);
 }
+
 void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 {
 	Serial.println("config mode");
-	int dayOfWeek,ha0, ha1, ha2, ha3, dataInt[10], diaD, diaU, mesD, mesU, anoD, anoU, dia, mes, ano, limDias, hora, minuto;
-	char *dayOW, cc, aux[10], *novaData = rtc.getDateStr(FORMAT_SHORT, FORMAT_LITTLEENDIAN, '.');
-	char dayowStr[8] = {'1', 'M', 'T','W','T','F','S','S'};
+	int dayOfWeek, ha0, ha1, ha2, ha3, dataInt[10], diaD, diaU, mesD, mesU, anoD, anoU, dia, mes, ano, limDias, hora, minuto;
+	char cc, *novaData = rtc.getDateStr(FORMAT_SHORT, FORMAT_LITTLEENDIAN, '.');
 	for (int i = 0; i < 10; i++)
 	{
 		cc = novaData[i];
@@ -315,13 +485,8 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	ha2 = num[2];
 	ha3 = num[3];
 	rtc.getTimeInt(num);
-	dayOW = rtc.getDOWStr(FORMAT_SHORT);
-	//Serial.println(dayOW);
-	for(int i =1; i < 8; i++){
-		if(dayOW[0] == dayowStr[i]){
-			dayOfWeek = i;
-		}
-	}
+	dayOfWeek = rtc.getDOWInt();
+
 	//num[0]*10 + num[1];
 	//num[2]*10 + num[3];
 	int controle_funcao = 1, clickButton;
@@ -335,6 +500,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 		minuto = ha2 * 10 + ha3;
 		//Serial.println(String(dia) + ":"+ String(mes)+":"+String(ano));
 		clickButton = button(ctrl1, ctrl2, flag1, flag2);
+		
 		if (clickButton == 1 && controle_funcao == 1)
 		{
 			if (ha3 + 1 < 10)
@@ -467,7 +633,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				diaU = 1;
 			}
 		}
-		if (clickButton == 1 && controle_funcao == 6)
+		else if (clickButton == 1 && controle_funcao == 6)
 		{
 			if (dayOfWeek + 1 < 8)
 			{
@@ -482,6 +648,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 		{
 			controle_funcao++;
 		}
+		
 		if (controle_funcao == 1)
 		{
 			//configurar minuto
@@ -556,7 +723,8 @@ void clean()
 {
 	for (int i = 2; i < 14; i++)
 	{
-		if(i!=10){
+		if (i != 10)
+		{
 			digitalWrite(i, 0);
 		}
 	}
@@ -575,11 +743,16 @@ void printNumb(int num, int ds, int tempo, bool blickFlag)
 	clean();
 	for (int i = 0; i < 8; i++)
 	{
-		digitalWrite(numbs[num][i], 1);
+		if(numbs[num][i] != 0){
+			digitalWrite(numbs[num][i], 1);
+		}
 	}
-	if(blickFlag){
+	if (blickFlag)
+	{
 		digitalWrite(16, 1);
-	}else{
+	}
+	else
+	{
 		digitalWrite(16, 0);
 	}
 	digitalWrite(ds, 1);
