@@ -587,7 +587,7 @@ void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *
 		}else if(funcao == 2){
 			relogio(P,O, nil ,nil , 8, false);
 			if(botao == 1){
-				pomodoro(ctrl1, ctrl2, flag1, flag2);
+				pomodoro(ctrl1, ctrl2, flag1, flag2, songAlarm);
 			}
 		}else if(funcao == 3){
 			relogio(5,O, N ,6 , 8, false);
@@ -616,13 +616,13 @@ void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *
 	}
 }
 
-void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
+void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm){
 	int minuto, segundos = 0;
 	int pomoNum[6],previous,current,funcao = 0, botao, count =0;
-	bool ctrlWhile = true, ctrlFuncao = true ;
+	bool ctrlWhile = true, ctrlFuncao = true , pause= false;
 	while(ctrlWhile){
 
-		if(!ctrlFuncao){
+		if(!ctrlFuncao && !pause){
 			previous = current;
 			rtc.getTimeInt(pomoNum);
 			current = pomoNum[5];
@@ -634,7 +634,7 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
 						ctrlFuncao = true;
 						count++;
 						segundos=0;
-						song(ctrl1, ctrl2, flag1, flag2, 1);
+						song(ctrl1, ctrl2, flag1, flag2, songAlarm);
 					}else{
 						segundos = 59;
 					}
@@ -642,10 +642,14 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
 			}	
 		}
 		botao = button(ctrl1, ctrl2, flag1, flag2);
-		if(botao == 1 || botao == 2){
+		if(botao == 2){
 			ctrlFuncao = true;
 			segundos = 0;
 		}
+		if(botao == 1){
+			pause = !pause;
+		}
+		
 		if(ctrlFuncao){
 			if( funcao == 0 && ( count == 1 || count == 3 || count == 5)){
 				//mando para o shortbreak
