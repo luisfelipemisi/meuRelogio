@@ -495,7 +495,7 @@ byte numbs[25][8] = {
 	};
 	
 
-int alarme_hora, alarme_minuto;
+int alarme_hora, alarme_minuto, songAlarm = 1;
 
 //Modulo RTC DS1307 ligado as portas A4 e A5 do Arduino
 DS1307 rtc(A4, A5);
@@ -517,6 +517,7 @@ void setup()
 	digitalWrite(16, 1);
 	alarme_hora = EEPROM.read(0) * 10 + EEPROM.read(1);
 	alarme_minuto = EEPROM.read(2) * 10 + EEPROM.read(3);
+	songAlarm = EEPROM.read(4);
 	Serial.begin(115200);
 }
 // meter um init.
@@ -539,7 +540,7 @@ void loop()
 		if (dayOfWeek != 6 && dayOfWeek != 7  && alarme_hora == num[0] * 10 + num[1] && alarme_minuto == num[2] * 10 + num[3] && ctrlAlarm )
 		{
 			ctrlAlarm = false;
-			activateAlarm(num, &ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
+			activateAlarm(num, &ctrlClick_1, &ctrlClick_2, &fg1, &fg2, songAlarm);
 			timeStandBy = millis();
 			while (millis() - timeStandBy < 10000)
 			{
@@ -555,12 +556,12 @@ void loop()
 
 		if (botao == 2)
 		{	
-			comands(num, &ctrlClick_1, &ctrlClick_2, &fg1, &fg2);
+			comands(num, &ctrlClick_1, &ctrlClick_2, &fg1, &fg2, &songAlarm);
 		}
 	}
 }
 
-void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
+void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *songAlarm){
 	int botao = button(ctrl1, ctrl2, flag1, flag2), funcao =0;
 	unsigned long int timeToBack = millis();
 	while(1){
@@ -576,7 +577,7 @@ void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
 		if(funcao == 0){
 			relogio(A,L,A ,10 , 8, false);
 			if(botao == 1){
-				alarme(num, ctrl1, ctrl2, flag1, flag2);
+				alarme(num, ctrl1, ctrl2, flag1, flag2,songAlarm);
 			}
 		}else if(funcao == 1){
 			relogio(C,O,N ,F , 8, false);
@@ -719,7 +720,7 @@ bool blinkDots(int *secondsPrev, int *secondsCurr, bool ctrlSecondsBlink)
 	}
 }
 
-void activateAlarm(int *num,bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
+void activateAlarm(int *num,bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 {
 	// iterate over the notes of the melody:
 	unsigned long timeToReadTime = millis();
@@ -730,7 +731,7 @@ void activateAlarm(int *num,bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 
 	while (ctrlWhile)
 	{
-		ctrlWhile = song(ctrl1, ctrl2, flag1, flag2, 1);
+		ctrlWhile = song(ctrl1, ctrl2, flag1, flag2, songAlarm);
 		timeToReadTime = millis();
 		while (ctrlWhile && millis() - timeToReadTime < 300)
 		{
@@ -858,7 +859,7 @@ bool song(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songNum){
 		return true;
 }
 
-void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
+void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *songAlarm)
 {
 	int ha0, ha1, ha2, ha3, dataInt[10], diaD, diaU, mesD, mesU, anoD, anoU, dia, mes, ano, limDias, hora, minuto;
 	char cc, *novaData = rtc.getDateStr(FORMAT_SHORT, FORMAT_LITTLEENDIAN, '.');
@@ -871,7 +872,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	ha1 = alarme_hora % 10;
 	ha2 = alarme_minuto / 10;
 	ha3 = alarme_minuto % 10;
-	int controle_funcao = 1, clickButton;
+	int controle_funcao = 1, clickButton,songAux = *songAlarm;
 	while (1)
 	{
 		hora = ha0 * 10 + ha1;
@@ -913,6 +914,18 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				ha1 = 0;
 			}
 		}
+		else if (clickButton == 1 && controle_funcao == 3)
+		{
+			if (songAux + 1 <= 9)
+			{
+				songAux++;
+			}
+			else
+			{
+				songAux = 1;
+			}
+			*songAlarm = songAux;
+		}
 		else if (clickButton == 2)
 		{
 			controle_funcao++;
@@ -926,7 +939,11 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 		{
 			relogio(ha0, ha1, h, nil, 20, true);
 		}
-		else if (controle_funcao > 2)
+		else if (controle_funcao == 3)
+		{
+			relogio(F, A, 10, songAux, 20, true);
+		}
+		else if (controle_funcao > 3)
 		{
 			Serial.println("Alarm out");
 			break;
@@ -940,6 +957,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	EEPROM.write(1, ha1);
 	EEPROM.write(2, ha2);
 	EEPROM.write(3, ha3);
+	EEPROM.write(4, songAux);
 }
 
 void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
