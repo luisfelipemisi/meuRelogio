@@ -29,9 +29,11 @@
 #define F	21
 #define U	22
 #define T	23
+#define Y 	24
 #define WORKTIME 25
 #define SHORTBREAK 5
 #define LONGBREAK 15
+
 
 	
 // notes in the melody:
@@ -45,13 +47,400 @@ int buzzer = 10;
 // a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
 // !!negative numbers are used to represent dotted notes,
 // so -4 means a dotted quarter note, that is, a quarter plus an eighteenth!!
-int melody[] = {
+#define SONGLIST 9
+const int PROGMEM melody1[] = {
   
   // The Lick 
   NOTE_B3,2
   
 };
-byte numbs[24][8] = {
+const int PROGMEM melody2[] = {
+  
+  // Pulo da gaita - Auto da Compadecida 
+  // Score available at https://musescore.com/user/196039/scores/250206
+  
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+  NOTE_G4,16, NOTE_C4,8, NOTE_C4,16, NOTE_G4,16, NOTE_G4,8, NOTE_G4,16,
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+  NOTE_G4,2,
+  
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+  NOTE_G4,16, NOTE_C4,8, NOTE_C4,16, NOTE_G4,16, NOTE_G4,8, NOTE_G4,16,
+  NOTE_F4,8, NOTE_E4,8, NOTE_D4,8, NOTE_C4,8,
+  NOTE_C4,2,
+
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+  NOTE_G4,16, NOTE_C4,8, NOTE_C4,16, NOTE_G4,16, NOTE_G4,8, NOTE_G4,16,
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+  NOTE_G4,2,
+
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+  NOTE_G4,16, NOTE_C4,8, NOTE_C4,16, NOTE_G4,16, NOTE_G4,8, NOTE_G4,16,
+  NOTE_F4,8, NOTE_E4,8, NOTE_D4,8, NOTE_C4,8,
+  NOTE_C4,16, NOTE_D5,8, NOTE_D5,16, NOTE_D5,16, NOTE_D5,8, NOTE_D5,16,
+
+  NOTE_D5,16, NOTE_D5,8, NOTE_D5,16, NOTE_C5,8, NOTE_E5,-8,
+  NOTE_C5,8, NOTE_C5,16, NOTE_E5,16, NOTE_E5,8, NOTE_C5,16,
+  NOTE_F5,8, NOTE_D5,8, NOTE_D5,8, NOTE_E5,-8,
+  NOTE_C5,8, NOTE_D5,16, NOTE_E5,16, NOTE_D5,8, NOTE_C5,16,
+
+  NOTE_F5,8, NOTE_F5,8, NOTE_A5,8, NOTE_G5,-8,//21
+  NOTE_G5,8, NOTE_C5,16, NOTE_C5,16, NOTE_C5,8, NOTE_C5,16,
+  NOTE_F5,-8, NOTE_E5,16, NOTE_D5,8, NOTE_C5,4,
+  NOTE_C5,16, NOTE_C5,16, NOTE_C5,16, NOTE_C5,16,
+
+  NOTE_F5,8, NOTE_F5,16, NOTE_A5,8, NOTE_G5,-8,//25
+  NOTE_G5,8, NOTE_C5,16, NOTE_C5,16, NOTE_C5,8, NOTE_C5,16,
+  NOTE_F5,16, NOTE_E5,8, NOTE_D5,16, NOTE_C5,8, NOTE_E5,-8,
+  NOTE_C5,8, NOTE_D5,16, NOTE_E5,16, NOTE_D5,8, NOTE_C5,16,
+ 
+  NOTE_F5,8, NOTE_F5,16, NOTE_A5,8, NOTE_G5,-8,//29
+  NOTE_G5,8, NOTE_C5,16, NOTE_C5,16, NOTE_C5,8, NOTE_C5,16,
+  NOTE_F5,8, NOTE_E5,16, NOTE_D5,8, NOTE_C5,8,
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+
+  NOTE_G4,16, NOTE_C4,8, NOTE_C4,16, NOTE_G4,16, NOTE_G4,8, NOTE_G4,16,
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+  NOTE_G4,2,
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+
+  NOTE_G4,16, NOTE_C4,8, NOTE_C4,16, NOTE_G4,16, NOTE_G4,8, NOTE_G4,16,
+  NOTE_F4,8, NOTE_E4,8, NOTE_D4,8, NOTE_C4,-2,
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+
+  NOTE_G4,16, NOTE_C4,8, NOTE_C4,16, NOTE_G4,16, NOTE_G4,8, NOTE_G4,16,
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+  NOTE_G4,2,
+  NOTE_C5,4, NOTE_G4,8, NOTE_AS4,4, NOTE_A4,8,
+
+  NOTE_G4,16, NOTE_C4,8, NOTE_C4,16, NOTE_G4,16, NOTE_G4,8, NOTE_G4,16,
+  NOTE_F4,8, NOTE_E4,8, NOTE_D4,8, NOTE_C4,-2,
+  NOTE_C4,16, NOTE_C4,8, NOTE_C4,16, NOTE_E4,16, NOTE_E4,8, NOTE_E4,16,
+  NOTE_F4,16, NOTE_F4,8, NOTE_F4,16, NOTE_FS4,16, NOTE_FS4,8, NOTE_FS4,16,
+
+  NOTE_G4,8, REST,8, NOTE_AS4,8, NOTE_C5,1,
+  
+  
+
+};
+const int PROGMEM melody3[] = {
+
+  // Never Gonna Give You Up - Rick Astley
+  // Score available at https://musescore.com/chlorondria_5/never-gonna-give-you-up_alto-sax
+  // Arranged by Chlorondria
+
+  NOTE_D5,-4, NOTE_E5,-4, NOTE_A4,4, //1
+  NOTE_E5,-4, NOTE_FS5,-4, NOTE_A5,16, NOTE_G5,16, NOTE_FS5,8,
+  NOTE_D5,-4, NOTE_E5,-4, NOTE_A4,2,
+  NOTE_A4,16, NOTE_A4,16, NOTE_B4,16, NOTE_D5,8, NOTE_D5,16,
+  NOTE_D5,-4, NOTE_E5,-4, NOTE_A4,4, //repeat from 1
+  NOTE_E5,-4, NOTE_FS5,-4, NOTE_A5,16, NOTE_G5,16, NOTE_FS5,8,
+  NOTE_D5,-4, NOTE_E5,-4, NOTE_A4,2,
+  NOTE_A4,16, NOTE_A4,16, NOTE_B4,16, NOTE_D5,8, NOTE_D5,16,
+  REST,4, NOTE_B4,8, NOTE_CS5,8, NOTE_D5,8, NOTE_D5,8, NOTE_E5,8, NOTE_CS5,-8,
+  NOTE_B4,16, NOTE_A4,2, REST,4, 
+
+  REST,8, NOTE_B4,8, NOTE_B4,8, NOTE_CS5,8, NOTE_D5,8, NOTE_B4,4, NOTE_A4,8, //7
+  NOTE_A5,8, REST,8, NOTE_A5,8, NOTE_E5,-4, REST,4, 
+  NOTE_B4,8, NOTE_B4,8, NOTE_CS5,8, NOTE_D5,8, NOTE_B4,8, NOTE_D5,8, NOTE_E5,8, REST,8,
+  REST,8, NOTE_CS5,8, NOTE_B4,8, NOTE_A4,-4, REST,4,
+  REST,8, NOTE_B4,8, NOTE_B4,8, NOTE_CS5,8, NOTE_D5,8, NOTE_B4,8, NOTE_A4,4,
+  NOTE_E5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,4, REST,4,
+   
+  NOTE_D5,2, NOTE_E5,8, NOTE_FS5,8, NOTE_D5,8, //13
+  NOTE_E5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,4, NOTE_A4,4,
+  REST,2, NOTE_B4,8, NOTE_CS5,8, NOTE_D5,8, NOTE_B4,8,
+  REST,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,-4, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+  NOTE_FS5,-8, NOTE_FS5,-8, NOTE_E5,-4, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+
+  NOTE_E5,-8, NOTE_E5,-8, NOTE_D5,-8, NOTE_CS5,16, NOTE_B4,-8, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16, //18
+  NOTE_D5,4, NOTE_E5,8, NOTE_CS5,-8, NOTE_B4,16, NOTE_A4,8, NOTE_A4,8, NOTE_A4,8, 
+  NOTE_E5,4, NOTE_D5,2, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+  NOTE_FS5,-8, NOTE_FS5,-8, NOTE_E5,-4, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+  NOTE_A5,4, NOTE_CS5,8, NOTE_D5,-8, NOTE_CS5,16, NOTE_B4,8, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+
+  NOTE_D5,4, NOTE_E5,8, NOTE_CS5,-8, NOTE_B4,16, NOTE_A4,4, NOTE_A4,8,  //23
+  NOTE_E5,4, NOTE_D5,2, REST,4,
+  REST,8, NOTE_B4,8, NOTE_D5,8, NOTE_B4,8, NOTE_D5,8, NOTE_E5,4, REST,8,
+  REST,8, NOTE_CS5,8, NOTE_B4,8, NOTE_A4,-4, REST,4,
+  REST,8, NOTE_B4,8, NOTE_B4,8, NOTE_CS5,8, NOTE_D5,8, NOTE_B4,8, NOTE_A4,4,
+  REST,8, NOTE_A5,8, NOTE_A5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8, NOTE_D5,8,
+  
+  REST,8, NOTE_A4,8, NOTE_B4,8, NOTE_CS5,8, NOTE_D5,8, NOTE_B4,8, //29
+  REST,8, NOTE_CS5,8, NOTE_B4,8, NOTE_A4,-4, REST,4,
+  NOTE_B4,8, NOTE_B4,8, NOTE_CS5,8, NOTE_D5,8, NOTE_B4,8, NOTE_A4,4, REST,8,
+  REST,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,4, NOTE_E5,-4, 
+  NOTE_D5,2, NOTE_D5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,4, 
+  NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8, NOTE_A4,8, NOTE_A4,4,
+
+  REST,-4, NOTE_A4,8, NOTE_B4,8, NOTE_CS5,8, NOTE_D5,8, NOTE_B4,8, //35
+  REST,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,-4, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+  NOTE_FS5,-8, NOTE_FS5,-8, NOTE_E5,-4, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+  NOTE_E5,-8, NOTE_E5,-8, NOTE_D5,-8, NOTE_CS5,16, NOTE_B4,8, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+  NOTE_D5,4, NOTE_E5,8, NOTE_CS5,-8, NOTE_B4,16, NOTE_A4,4, NOTE_A4,8, 
+
+   NOTE_E5,4, NOTE_D5,2, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16, //40
+  NOTE_FS5,-8, NOTE_FS5,-8, NOTE_E5,-4, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+  NOTE_A5,4, NOTE_CS5,8, NOTE_D5,-8, NOTE_CS5,16, NOTE_B4,8, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+  NOTE_D5,4, NOTE_E5,8, NOTE_CS5,-8, NOTE_B4,16, NOTE_A4,4, NOTE_A4,8,  
+  NOTE_E5,4, NOTE_D5,2, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+   
+  NOTE_FS5,-8, NOTE_FS5,-8, NOTE_E5,-4, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16, //45
+  NOTE_A5,4, NOTE_CS5,8, NOTE_D5,-8, NOTE_CS5,16, NOTE_B4,8, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+  NOTE_D5,4, NOTE_E5,8, NOTE_CS5,-8, NOTE_B4,16, NOTE_A4,4, NOTE_A4,8,  
+  NOTE_E5,4, NOTE_D5,2, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+  NOTE_FS5,-8, NOTE_FS5,-8, NOTE_E5,-4, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16, //45
+  
+  NOTE_A5,4, NOTE_CS5,8, NOTE_D5,-8, NOTE_CS5,16, NOTE_B4,8, NOTE_A4,16, NOTE_B4,16, NOTE_D5,16, NOTE_B4,16,
+  NOTE_D5,4, NOTE_E5,8, NOTE_CS5,-8, NOTE_B4,16, NOTE_A4,4, NOTE_A4,8, 
+
+  NOTE_E5,4, NOTE_D5,2, REST,4
+};
+//harrypoter
+const int PROGMEM melody4[] = {
+
+  // Asa branca - Luiz Gonzaga
+  // Score available at https://musescore.com/user/190926/scores/181370
+
+  NOTE_G4,8, NOTE_A4,8, NOTE_B4,4, NOTE_D5,4, NOTE_D5,4, NOTE_B4,4, 
+  NOTE_C5,4, NOTE_C5,2, NOTE_G4,8, NOTE_A4,8,
+  NOTE_B4,4, NOTE_D5,4, NOTE_D5,4, NOTE_C5,4,
+
+  NOTE_B4,2, REST,8, NOTE_G4,8, NOTE_G4,8, NOTE_A4,8,
+  NOTE_B4,4, NOTE_D5,4, REST,8, NOTE_D5,8, NOTE_C5,8, NOTE_B4,8,
+  NOTE_G4,4, NOTE_C5,4, REST,8, NOTE_C5,8, NOTE_B4,8, NOTE_A4,8,
+
+  NOTE_A4,4, NOTE_B4,4, REST,8, NOTE_B4,8, NOTE_A4,8, NOTE_G4,8,
+  NOTE_G4,2, REST,8, NOTE_G4,8, NOTE_G4,8, NOTE_A4,8,
+  NOTE_B4,4, NOTE_D5,4, REST,8, NOTE_D5,8, NOTE_C5,8, NOTE_B4,8,
+
+  NOTE_G4,4, NOTE_C5,4, REST,8, NOTE_C5,8, NOTE_B4,8, NOTE_A4,8,
+  NOTE_A4,4, NOTE_B4,4, REST,8, NOTE_B4,8, NOTE_A4,8, NOTE_G4,8,
+  NOTE_G4,4, NOTE_F5,8, NOTE_D5,8, NOTE_E5,8, NOTE_C5,8, NOTE_D5,8, NOTE_B4,8,
+
+  NOTE_C5,8, NOTE_A4,8, NOTE_B4,8, NOTE_G4,8, NOTE_A4,8, NOTE_G4,8, NOTE_E4,8, NOTE_G4,8,
+  NOTE_G4,4, NOTE_F5,8, NOTE_D5,8, NOTE_E5,8, NOTE_C5,8, NOTE_D5,8, NOTE_B4,8,
+  NOTE_C5,8, NOTE_A4,8, NOTE_B4,8, NOTE_G4,8, NOTE_A4,8, NOTE_G4,8, NOTE_E4,8, NOTE_G4,8,
+  NOTE_G4,-2, REST,4
+  
+};
+//starwars
+const int PROGMEM melody5[] = {
+  
+  // Dart Vader theme (Imperial March) - Star wars 
+  // Score available at https://musescore.com/user/202909/scores/1141521
+  // The tenor saxophone part was used
+  
+  NOTE_AS4,8, NOTE_AS4,8, NOTE_AS4,8,//1
+  NOTE_F5,2, NOTE_C6,2,
+  NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F6,2, NOTE_C6,4,  
+  NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F6,2, NOTE_C6,4,  
+  NOTE_AS5,8, NOTE_A5,8, NOTE_AS5,8, NOTE_G5,2, NOTE_C5,8, NOTE_C5,8, NOTE_C5,8,
+  NOTE_F5,2, NOTE_C6,2,
+  NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F6,2, NOTE_C6,4,  
+  
+  NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F6,2, NOTE_C6,4, //8  
+  NOTE_AS5,8, NOTE_A5,8, NOTE_AS5,8, NOTE_G5,2, NOTE_C5,-8, NOTE_C5,16, 
+  NOTE_D5,-4, NOTE_D5,8, NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F5,8,
+  NOTE_F5,8, NOTE_G5,8, NOTE_A5,8, NOTE_G5,4, NOTE_D5,8, NOTE_E5,4,NOTE_C5,-8, NOTE_C5,16,
+  NOTE_D5,-4, NOTE_D5,8, NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F5,8,
+  
+  NOTE_C6,-8, NOTE_G5,16, NOTE_G5,2, REST,8, NOTE_C5,8,//13
+  NOTE_D5,-4, NOTE_D5,8, NOTE_AS5,8, NOTE_A5,8, NOTE_G5,8, NOTE_F5,8,
+  NOTE_F5,8, NOTE_G5,8, NOTE_A5,8, NOTE_G5,4, NOTE_D5,8, NOTE_E5,4,NOTE_C6,-8, NOTE_C6,16,
+  NOTE_F6,4, NOTE_DS6,8, NOTE_CS6,4, NOTE_C6,8, NOTE_AS5,4, NOTE_GS5,8, NOTE_G5,4, NOTE_F5,8,
+  NOTE_C6,1
+  
+};
+//pinkpanther
+const int PROGMEM melody6[] = {
+
+  // Pink Panther theme
+  // Score available at https://musescore.com/benedictsong/the-pink-panther
+  // Theme by Masato Nakamura, arranged by Teddy Mason
+
+  REST,2, REST,4, REST,8, NOTE_DS4,8, 
+  NOTE_E4,-4, REST,8, NOTE_FS4,8, NOTE_G4,-4, REST,8, NOTE_DS4,8,
+  NOTE_E4,-8, NOTE_FS4,8,  NOTE_G4,-8, NOTE_C5,8, NOTE_B4,-8, NOTE_E4,8, NOTE_G4,-8, NOTE_B4,8,   
+  NOTE_AS4,2, NOTE_A4,-16, NOTE_G4,-16, NOTE_E4,-16, NOTE_D4,-16, 
+  NOTE_E4,2, REST,4, REST,8, NOTE_DS4,4,
+
+  NOTE_E4,-4, REST,8, NOTE_FS4,8, NOTE_G4,-4, REST,8, NOTE_DS4,8,
+  NOTE_E4,-8, NOTE_FS4,8,  NOTE_G4,-8, NOTE_C5,8, NOTE_B4,-8, NOTE_G4,8, NOTE_B4,-8, NOTE_E5,8,
+  NOTE_DS5,1,   
+  NOTE_D5,2, REST,4, REST,8, NOTE_DS4,8, 
+  NOTE_E4,-4, REST,8, NOTE_FS4,8, NOTE_G4,-4, REST,8, NOTE_DS4,8,
+  NOTE_E4,-8, NOTE_FS4,8,  NOTE_G4,-8, NOTE_C5,8, NOTE_B4,-8, NOTE_E4,8, NOTE_G4,-8, NOTE_B4,8,   
+  
+  NOTE_AS4,2, NOTE_A4,-16, NOTE_G4,-16, NOTE_E4,-16, NOTE_D4,-16, 
+  NOTE_E4,-4, REST,4,
+  REST,4, NOTE_E5,-8, NOTE_D5,8, NOTE_B4,-8, NOTE_A4,8, NOTE_G4,-8, NOTE_E4,-8,
+  NOTE_AS4,16, NOTE_A4,-8, NOTE_AS4,16, NOTE_A4,-8, NOTE_AS4,16, NOTE_A4,-8, NOTE_AS4,16, NOTE_A4,-8,   
+  NOTE_G4,-16, NOTE_E4,-16, NOTE_D4,-16, NOTE_E4,16, NOTE_E4,16, NOTE_E4,2,
+ 
+};
+//lionking
+const int PROGMEM melody7[] = {
+
+  // The Lion Sleeps Tonight
+  // Score available at https://musescore.com/user/18545446/scores/5061407
+
+  NOTE_F4, 4, NOTE_G4, 4, NOTE_A4, 8, NOTE_G4, 4, NOTE_A4, 8, //1
+  NOTE_AS4, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_F4, 4, NOTE_G4, 8,
+  NOTE_A4, 4, NOTE_C4, 8, NOTE_C4, 4, NOTE_C4, 8, NOTE_C4, 4,
+  NOTE_C4, 1, //1st ending
+
+  NOTE_F4, 4, NOTE_G4, 4, NOTE_A4, 8, NOTE_G4, 4, NOTE_A4, 8, //repeats from 1
+  NOTE_AS4, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_F4, 4, NOTE_G4, 8,
+  NOTE_A4, 4, NOTE_C4, 8, NOTE_C4, 4, NOTE_C4, 8, NOTE_C4, 4,
+  NOTE_C4, -2,  REST, -8, NOTE_A4, 16, //2nd ending
+
+  NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16, //6
+  NOTE_AS4, -8, NOTE_AS4, 16, NOTE_AS4, -8, NOTE_AS4, 16, NOTE_AS4, -8, NOTE_AS4, 16, NOTE_AS4, -8, NOTE_AS4, 16,
+  NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16,
+  NOTE_G4, -8, NOTE_G4, 16, NOTE_G4, -8, NOTE_G4, 16, NOTE_G4, -8, NOTE_G4, 16, NOTE_G4, -8, NOTE_G4, 16,
+
+  NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16, //10
+  NOTE_AS4, -8, NOTE_AS4, 16, NOTE_AS4, -8, NOTE_AS4, 16, NOTE_AS4, -8, NOTE_AS4, 16, NOTE_AS4, -8, NOTE_AS4, 16,
+  NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16, NOTE_A4, -8, NOTE_A4, 16,
+  NOTE_G4, -8, NOTE_G4, 16, NOTE_G4, -8, NOTE_G4, 16, NOTE_G4, -8, NOTE_G4, 16, NOTE_G4, -8, NOTE_G4, 16,
+
+  NOTE_F4, 4, NOTE_G4, 4, NOTE_A4, 8, NOTE_G4, 4, NOTE_A4, 8, //14
+  NOTE_AS4, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_F4, 4, NOTE_G4, 8,
+  NOTE_A4, 4, NOTE_G4, 4, NOTE_F4, 4, NOTE_A4, 4,
+  NOTE_G4, 1,
+  NOTE_C5, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_A4, 4, NOTE_C5, 8,
+  NOTE_AS4, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_F4, 4, NOTE_G4, 8,
+  NOTE_A4, 4, NOTE_G4, 4, NOTE_F4, 4, NOTE_A4, 4,
+  NOTE_G4, 1,
+
+  NOTE_C5, 1, //22
+  NOTE_C5, 4, NOTE_AS4, 8, NOTE_C5, 8, NOTE_AS4, 2,
+  NOTE_A4, 4, NOTE_C4, 8, NOTE_C4, 4, NOTE_C4, 8, NOTE_C4, 4,
+  NOTE_C4, 1,
+
+  REST, 4, NOTE_A4, 8, NOTE_G4, 8, NOTE_F4, 8, NOTE_E4, 8, NOTE_D4, 8, NOTE_C4, 8, 
+  NOTE_D4, 1,
+  REST, 4, NOTE_A4, 8, NOTE_G4, 8, NOTE_F4, 8, NOTE_E4, 8, NOTE_D4, 8, NOTE_C4, 8, 
+  NOTE_D4, 1,
+
+  NOTE_F4, 4, NOTE_G4, 4, NOTE_A4, 8, NOTE_G4, 4, NOTE_A4, 8, //repeats from 14
+  NOTE_AS4, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_F4, 4, NOTE_G4, 8,
+  NOTE_A4, 4, NOTE_G4, 4, NOTE_F4, 4, NOTE_A4, 4,
+  NOTE_G4, 1,
+  NOTE_C5, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_A4, 4, NOTE_C5, 8,
+  NOTE_AS4, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_F4, 4, NOTE_G4, 8,
+  NOTE_A4, 4, NOTE_G4, 4, NOTE_F4, 4, NOTE_A4, 4,
+  NOTE_G4, 1,
+
+  NOTE_C5, 1, //22
+  NOTE_C5, 4, NOTE_AS4, 8, NOTE_C5, 8, NOTE_AS4, 2,
+  NOTE_A4, 4, NOTE_C4, 8, NOTE_C4, 4, NOTE_C4, 8, NOTE_C4, 4,
+  NOTE_C4, 1,
+
+  REST, 4, NOTE_A4, 8, NOTE_G4, 8, NOTE_F4, 8, NOTE_E4, 8, NOTE_D4, 8, NOTE_C4, 8, 
+  NOTE_D4, 1,
+  REST, 4, NOTE_A4, 8, NOTE_G4, 8, NOTE_F4, 8, NOTE_E4, 8, NOTE_D4, 8, NOTE_C4, 8, 
+  NOTE_D4, 1,
+
+  NOTE_F4, 4, NOTE_G4, 4, NOTE_A4, 8, NOTE_G4, 4, NOTE_A4, 8, //30
+  NOTE_AS4, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_F4, 4, NOTE_G4, 8,
+  NOTE_A4, 4, NOTE_C4, 8, NOTE_C4, 4, NOTE_C4, 8, NOTE_C4, 4,
+  NOTE_C4, 1, 
+
+  NOTE_F4, 4, NOTE_G4, 4, NOTE_A4, 8, NOTE_G4, 4, NOTE_A4, 8, //repeats from 14 (again)
+  NOTE_AS4, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_F4, 4, NOTE_G4, 8,
+  NOTE_A4, 4, NOTE_G4, 4, NOTE_F4, 4, NOTE_A4, 4,
+  NOTE_G4, 1,
+  NOTE_C5, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_A4, 4, NOTE_C5, 8,
+  NOTE_AS4, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_F4, 4, NOTE_G4, 8,
+  NOTE_A4, 4, NOTE_G4, 4, NOTE_F4, 4, NOTE_A4, 4,
+  NOTE_G4, 1,
+
+  NOTE_C5, 1, //22
+  NOTE_C5, 4, NOTE_AS4, 8, NOTE_C5, 8, NOTE_AS4, 2,
+  NOTE_A4, 4, NOTE_C4, 8, NOTE_C4, 4, NOTE_C4, 8, NOTE_C4, 4,
+  NOTE_C4, 1,
+
+  REST, 4, NOTE_A4, 8, NOTE_G4, 8, NOTE_F4, 8, NOTE_E4, 8, NOTE_D4, 8, NOTE_C4, 8, 
+  NOTE_D4, 1,
+  REST, 4, NOTE_A4, 8, NOTE_G4, 8, NOTE_F4, 8, NOTE_E4, 8, NOTE_D4, 8, NOTE_C4, 8, 
+  NOTE_D4, 1,
+
+  NOTE_F4, 4, NOTE_G4, 4, NOTE_A4, 8, NOTE_G4, 4, NOTE_A4, 8, //30
+  NOTE_AS4, 4, NOTE_A4, 4, NOTE_G4, 8, NOTE_F4, 4, NOTE_G4, 8,
+  NOTE_A4, 4, NOTE_C4, 8, NOTE_C4, 4, NOTE_C4, 8, NOTE_C4, 4,
+  NOTE_C4, 1, 
+  
+};
+//takeonme
+const int PROGMEM melody8[] = {
+
+  // Take on me, by A-ha
+  // Score available at https://musescore.com/user/27103612/scores/4834399
+  // Arranged by Edward Truong
+
+  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
+  REST,8, NOTE_E5,8, REST,8, NOTE_E5,8, NOTE_GS5,8, NOTE_GS5,8, NOTE_A5,8, NOTE_B5,8,
+  NOTE_A5,8, NOTE_A5,8, NOTE_A5,8, NOTE_E5,8, REST,8, NOTE_D5,8, REST,8, NOTE_FS5,8, 
+  REST,8, NOTE_FS5,8, REST,8, NOTE_FS5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8,
+  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
+  
+  REST,8, NOTE_E5,8, REST,8, NOTE_E5,8, NOTE_GS5,8, NOTE_GS5,8, NOTE_A5,8, NOTE_B5,8,
+  NOTE_A5,8, NOTE_A5,8, NOTE_A5,8, NOTE_E5,8, REST,8, NOTE_D5,8, REST,8, NOTE_FS5,8, 
+  REST,8, NOTE_FS5,8, REST,8, NOTE_FS5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8,
+  NOTE_FS5,8, NOTE_FS5,8,NOTE_D5,8, NOTE_B4,8, REST,8, NOTE_B4,8, REST,8, NOTE_E5,8, 
+  REST,8, NOTE_E5,8, REST,8, NOTE_E5,8, NOTE_GS5,8, NOTE_GS5,8, NOTE_A5,8, NOTE_B5,8,
+  
+  NOTE_A5,8, NOTE_A5,8, NOTE_A5,8, NOTE_E5,8, REST,8, NOTE_D5,8, REST,8, NOTE_FS5,8, 
+  REST,8, NOTE_FS5,8, REST,8, NOTE_FS5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8,
+  
+};
+//harrypotter
+const int PROGMEM melody9[] = {
+
+
+  // Hedwig's theme fromn the Harry Potter Movies
+  // Socre from https://musescore.com/user/3811306/scores/4906610
+  
+  REST, 2, NOTE_D4, 4,
+  NOTE_G4, -4, NOTE_AS4, 8, NOTE_A4, 4,
+  NOTE_G4, 2, NOTE_D5, 4,
+  NOTE_C5, -2, 
+  NOTE_A4, -2,
+  NOTE_G4, -4, NOTE_AS4, 8, NOTE_A4, 4,
+  NOTE_F4, 2, NOTE_GS4, 4,
+  NOTE_D4, -1, 
+  NOTE_D4, 4,
+
+  NOTE_G4, -4, NOTE_AS4, 8, NOTE_A4, 4, //10
+  NOTE_G4, 2, NOTE_D5, 4,
+  NOTE_F5, 2, NOTE_E5, 4,
+  NOTE_DS5, 2, NOTE_B4, 4,
+  NOTE_DS5, -4, NOTE_D5, 8, NOTE_CS5, 4,
+  NOTE_CS4, 2, NOTE_B4, 4,
+  NOTE_G4, -1,
+  NOTE_AS4, 4,
+     
+  NOTE_D5, 2, NOTE_AS4, 4,//18
+  NOTE_D5, 2, NOTE_AS4, 4,
+  NOTE_DS5, 2, NOTE_D5, 4,
+  NOTE_CS5, 2, NOTE_A4, 4,
+  NOTE_AS4, -4, NOTE_D5, 8, NOTE_CS5, 4,
+  NOTE_CS4, 2, NOTE_D4, 4,
+  NOTE_D5, -1, 
+  REST,4, NOTE_AS4,4,  
+
+  NOTE_D5, 2, NOTE_AS4, 4,//26
+  NOTE_D5, 2, NOTE_AS4, 4,
+  NOTE_F5, 2, NOTE_E5, 4,
+  NOTE_DS5, 2, NOTE_B4, 4,
+  NOTE_DS5, -4, NOTE_D5, 8, NOTE_CS5, 4,
+  NOTE_CS4, 2, NOTE_AS4, 4,
+  NOTE_G4, -1, 
+  
+};
+byte numbs[25][8] = {
 	//0
 	{a, b, c, d, e, f, 0, 0},
 	//1
@@ -99,7 +488,9 @@ byte numbs[24][8] = {
 	//U
 	{0, b, c, d, e, f, 0, 0},
 	//T
-	{a, b, c, 0, 0, 0, 0, 0}
+	{a, b, c, 0, 0, 0, 0, 0},
+	//Y
+	{e, f, 0, g, b, 0, 0, 0},
 	
 	};
 	
@@ -141,7 +532,6 @@ void loop()
 	int num[6];
 	unsigned long int timeStandBy = millis();
 	int dayOfWeek = rtc.getDOWInt();
-	Serial.println(dayOfWeek);
 	while (1)
 	{
 		dayOfWeek = rtc.getDOWInt();
@@ -199,6 +589,27 @@ void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
 				pomodoro(ctrl1, ctrl2, flag1, flag2);
 			}
 		}else if(funcao == 3){
+			relogio(5,O, N ,6 , 8, false);
+			if(botao == 1){
+				int songNum =1;
+				bool ctrlWhile = true;
+				while(ctrlWhile){
+					botao = button(ctrl1, ctrl2, flag1, flag2);
+					
+					if(botao == 2){
+						songNum++;
+					}else if(botao == 1){
+						ctrlWhile = song(ctrl1, ctrl2, flag1, flag2, songNum);
+					}
+
+					if(songNum > SONGLIST){
+						ctrlWhile = false;
+					}else{
+						relogio(F,A,10,songNum , 5, false);
+					}
+				}
+			}
+		}else if(funcao == 4){
 			return;
 		}
 	}
@@ -211,9 +622,9 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
 	while(ctrlWhile){
 
 		if(!ctrlFuncao){
-			previous = 1;
-			//rtc.getTimeInt(pomoNum);
-			current = 2;
+			previous = current;
+			rtc.getTimeInt(pomoNum);
+			current = pomoNum[5];
 			if(current != previous){
 				segundos--;
 				if(segundos < 0){
@@ -222,7 +633,7 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
 						ctrlFuncao = true;
 						count++;
 						segundos=0;
-						song(ctrl1, ctrl2, flag1, flag2);
+						song(ctrl1, ctrl2, flag1, flag2, 1);
 					}else{
 						segundos = 59;
 					}
@@ -319,7 +730,7 @@ void activateAlarm(int *num,bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 
 	while (ctrlWhile)
 	{
-		ctrlWhile = song(ctrl1, ctrl2, flag1, flag2);
+		ctrlWhile = song(ctrl1, ctrl2, flag1, flag2, 1);
 		timeToReadTime = millis();
 		while (ctrlWhile && millis() - timeToReadTime < 300)
 		{
@@ -335,16 +746,73 @@ void activateAlarm(int *num,bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	}
 }
 
-bool song(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
-	int notes = sizeof(melody) / sizeof(melody[0]) / 2;
+void read_flash_int_array(int *destino, int *origem, int tamanho) {
+	if(tamanho > 500){
+		tamanho = 500;
+	}
+	for (int i = 0; i < tamanho; i++) {
+		destino[i] = pgm_read_word(&origem[i]);
+	}
+}
+
+bool song(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songNum){
+	int songPlay[500];
+	int notes;
 	int wholenote = (60000 * 4) / tempo;
 	int divider = 0, noteDuration = 0;
 	int ant, botao = 0;
+	bool ctrlDisplay = true;
 	unsigned long int timeToReadTime = millis();
+	unsigned long int timeToDisplay = millis();
+	
+	switch (songNum)
+	{
+		case 1:
+			notes = sizeof(melody1) / sizeof(melody1[0]);
+			read_flash_int_array(songPlay, &melody1[0], notes);
+			break;
+		case 2:
+			notes = sizeof(melody2) / sizeof(melody2[0]);
+			read_flash_int_array(songPlay, &melody2[0], notes);
+			break;
+		case 3:
+			notes = sizeof(melody3) / sizeof(melody3[0]);
+			read_flash_int_array(songPlay, &melody3[0], notes);
+			break;
+		case 4:
+			notes = sizeof(melody4) / sizeof(melody4[0]);
+			read_flash_int_array(songPlay, &melody4[0], notes);
+			break;
+		case 5:
+			notes = sizeof(melody5) / sizeof(melody5[0]);
+			read_flash_int_array(songPlay, &melody5[0], notes);
+			break;
+		case 6:
+			notes = sizeof(melody6) / sizeof(melody6[0]);
+			read_flash_int_array(songPlay, &melody6[0], notes);
+			break;
+		case 7:
+			notes = sizeof(melody7) / sizeof(melody7[0]);
+			read_flash_int_array(songPlay, &melody7[0], notes);
+			break;
+		case 8:
+			notes = sizeof(melody8) / sizeof(melody8[0]);
+			read_flash_int_array(songPlay, &melody8[0], notes);
+			break;
+		case 9:
+			notes = sizeof(melody9) / sizeof(melody9[0]);
+			read_flash_int_array(songPlay, &melody9[0], notes);
+			break;	
+	}
+	if( notes > 500 ){
+		notes = 500;
+	}
+	notes /=2; 
+	
 	for (int thisNote = 0; thisNote < notes * 2; thisNote = thisNote + 2)
 		{
 			// calculates the duration of each note
-			divider = melody[thisNote + 1];
+			divider = songPlay[thisNote + 1];
 			if (divider > 0)
 			{
 				// regular note, just proceed
@@ -358,15 +826,26 @@ bool song(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
 			}
 
 			// we only play the note for 90% of the duration, leaving 10% as a pause
-			tone(buzzer, melody[thisNote], noteDuration * 0.9);
+			tone(buzzer, songPlay[thisNote], noteDuration * 0.9);
 
 			// Wait for the specief duration before playing the next note.
 			timeToReadTime = millis();
+			
+			while (millis() - timeToDisplay> 1000){
+				ctrlDisplay = !ctrlDisplay;
+				timeToDisplay = millis();
+			}
 			while (millis() - timeToReadTime < noteDuration)
 			{
+				if(ctrlDisplay){
+					relogio(F,A, 10 , songNum , 5, false);
+				}else{
+					relogio(P,L, A ,Y , 5, false);
+				}
 				botao = button(ctrl1, ctrl2, flag1, flag2);
 				if (botao == 1 || botao == 2)
 				{
+					free(songPlay);
 					return false;
 				}
 			}
@@ -375,6 +854,7 @@ bool song(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2){
 			// stop the waveform generation before the next note.
 			noTone(buzzer);
 		}
+		free(songPlay);
 		return true;
 }
 
@@ -471,7 +951,6 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	{
 		cc = novaData[i];
 		dataInt[i] = cc - '0';
-		//Serial.println(dataInt[i]);
 	}
 	anoU = dataInt[7];
 	anoD = dataInt[6];
@@ -498,7 +977,6 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 		ano = 2000 + anoD * 10 + anoU;
 		hora = ha0 * 10 + ha1;
 		minuto = ha2 * 10 + ha3;
-		//Serial.println(String(dia) + ":"+ String(mes)+":"+String(ano));
 		clickButton = button(ctrl1, ctrl2, flag1, flag2);
 		
 		if (clickButton == 1 && controle_funcao == 1)
@@ -586,7 +1064,6 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 					//ano bissexto
 					if (mes == 2)
 					{
-						Serial.println("BISSEXTO");
 						//fevereiro, dias vão até 29
 						limDias = 29;
 					}
@@ -598,7 +1075,6 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 				}
 				else
 				{
-					Serial.println("NAO BISSEXTO");
 					// mês par, dias vão até 30
 					limDias = 30;
 				}
