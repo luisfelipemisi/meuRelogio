@@ -47,7 +47,7 @@ int buzzer = 10;
 // a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
 // !!negative numbers are used to represent dotted notes,
 // so -4 means a dotted quarter note, that is, a quarter plus an eighteenth!!
-#define SONGLIST 9
+#define SONGLIST 10
 const int PROGMEM melody1[] = {
   
   // The Lick 
@@ -440,6 +440,14 @@ const int PROGMEM melody9[] = {
   NOTE_G4, -1, 
   
 };
+
+const int PROGMEM melody0[] = {
+  
+  // The Lick 
+  NOTE_A7,10,NOTE_A4,2,NOTE_A7,10,NOTE_A4,2,NOTE_A7,10,NOTE_A4,2,NOTE_A7,10,NOTE_A4,2,NOTE_A7,10,NOTE_A4,2
+  
+};
+
 byte numbs[25][8] = {
 	//0
 	{a, b, c, d, e, f, 0, 0},
@@ -495,7 +503,7 @@ byte numbs[25][8] = {
 	};
 	
 
-int alarme_hora, alarme_minuto, songAlarm = 1;
+int alarme_hora, alarme_minuto, songAlarm = 0;
 
 //Modulo RTC DS1307 ligado as portas A4 e A5 do Arduino
 DS1307 rtc(A4, A5);
@@ -592,7 +600,7 @@ void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *
 		}else if(funcao == 3){
 			relogio(5,O, N ,6 , 8, false);
 			if(botao == 1){
-				int songNum =1;
+				int songNum =0;
 				bool ctrlWhile = true;
 				while(ctrlWhile){
 					botao = button(ctrl1, ctrl2, flag1, flag2);
@@ -603,7 +611,7 @@ void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *
 						ctrlWhile = song(ctrl1, ctrl2, flag1, flag2, songNum);
 					}
 
-					if(songNum > SONGLIST){
+					if(songNum >= SONGLIST){
 						ctrlWhile = false;
 					}else{
 						relogio(F,A,10,songNum , 5, false);
@@ -620,8 +628,9 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 	int minuto, segundos = 0;
 	int pomoNum[6],previous,current,funcao = 0, botao, count =0;
 	bool ctrlWhile = true, ctrlFuncao = true , pause= false;
+	unsigned long int timeToBack = millis();
 	while(ctrlWhile){
-
+		
 		if(!ctrlFuncao && !pause){
 			previous = current;
 			rtc.getTimeInt(pomoNum);
@@ -672,7 +681,9 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 			}
 		}
 		while(ctrlFuncao){
-			
+			if(millis() - timeToBack > 60000){
+				return;
+			}
 			botao = button(ctrl1, ctrl2, flag1, flag2);
 
 			//pomodoro configurado
@@ -873,6 +884,10 @@ bool song(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songNum){
 	
 	switch (songNum)
 	{
+		case 0:
+			notes = sizeof(melody0) / sizeof(melody0[0]);
+			read_flash_int_array(songPlay, &melody0[0], notes);
+			break;	
 		case 1:
 			notes = sizeof(melody1) / sizeof(melody1[0]);
 			read_flash_int_array(songPlay, &melody1[0], notes);
@@ -936,18 +951,9 @@ bool song(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songNum){
 
 			// Wait for the specief duration before playing the next note.
 			timeToReadTime = millis();
-			
-			while (millis() - timeToDisplay> 1000){
-				ctrlDisplay = !ctrlDisplay;
-				timeToDisplay = millis();
-			}
 			while (millis() - timeToReadTime < noteDuration)
 			{
-				if(ctrlDisplay){
-					relogio(F,A, 10 , songNum , 5, false);
-				}else{
-					relogio(P,L, A ,Y , 5, false);
-				}
+				relogio(P,L, A ,Y , 5, false);
 				botao = button(ctrl1, ctrl2, flag1, flag2);
 				if (botao == 1 || botao == 2)
 				{
@@ -968,6 +974,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *s
 {
 	int ha0, ha1, ha2, ha3, dataInt[10], diaD, diaU, mesD, mesU, anoD, anoU, dia, mes, ano, limDias, hora, minuto;
 	char cc, *novaData = rtc.getDateStr(FORMAT_SHORT, FORMAT_LITTLEENDIAN, '.');
+	unsigned long int timeToBack = millis();
 	for (int i = 0; i < 10; i++)
 	{
 		cc = novaData[i];
@@ -980,6 +987,9 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *s
 	int controle_funcao = 1, clickButton,songAux = *songAlarm;
 	while (1)
 	{
+		if(millis() - timeToBack > 60000){
+			return;
+		}
 		hora = ha0 * 10 + ha1;
 		minuto = ha2 * 10 + ha3;
 
@@ -1027,7 +1037,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *s
 			}
 			else
 			{
-				songAux = 1;
+				songAux = 0;
 			}
 			*songAlarm = songAux;
 		}
@@ -1092,9 +1102,12 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	//num[0]*10 + num[1];
 	//num[2]*10 + num[3];
 	int controle_funcao = 1, clickButton;
+	unsigned long int timeToBack = millis();
 	while (1)
 	{
-
+		if(millis() - timeToBack > 60000){
+			return;
+		}
 		dia = diaD * 10 + diaU;
 		mes = mesD * 10 + mesU;
 		ano = 2000 + anoD * 10 + anoU;
