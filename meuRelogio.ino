@@ -32,7 +32,7 @@
 #define Y 	24
 #define WORKTIME 25
 #define SHORTBREAK 5
-#define LONGBREAK 15a
+#define LONGBREAK 15
 #define TIMETOBACK 300000
 
 
