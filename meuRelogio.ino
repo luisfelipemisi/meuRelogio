@@ -570,44 +570,48 @@ void loop()
 }
 
 void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *songAlarm){
-	int botao = button(ctrl1, ctrl2, flag1, flag2), funcao =0;
+	int clickButton = button(ctrl1, ctrl2, flag1, flag2), funcao =0;
 	unsigned long int timeToBack = millis();
 	while(1){
 		if(millis() - timeToBack > 60000){
 			return;
 		}
-		botao = button(ctrl1, ctrl2, flag1, flag2);
-		if (botao == 2)
+		clickButton = button(ctrl1, ctrl2, flag1, flag2);
+
+		if (clickButton != 0){
+			timeToBack = millis();
+		}
+		if (clickButton == 2)
 		{
 			funcao++;
 		}
 
 		if(funcao == 0){
 			relogio(A,L,A ,10 , 8, false);
-			if(botao == 1){
+			if(clickButton == 1){
 				alarme(num, ctrl1, ctrl2, flag1, flag2,songAlarm);
 			}
 		}else if(funcao == 1){
 			relogio(C,O,N ,F , 8, false);
-			if(botao == 1){
+			if(clickButton == 1){
 				confRelogio(num, ctrl1, ctrl2, flag1, flag2);
 			}
 		}else if(funcao == 2){
 			relogio(P,O, nil ,nil , 8, false);
-			if(botao == 1){
+			if(clickButton == 1){
 				pomodoro(ctrl1, ctrl2, flag1, flag2, *songAlarm);
 			}
 		}else if(funcao == 3){
 			relogio(5,O, N ,6 , 8, false);
-			if(botao == 1){
+			if(clickButton == 1){
 				int songNum =0;
 				bool ctrlWhile = true;
 				while(ctrlWhile){
-					botao = button(ctrl1, ctrl2, flag1, flag2);
+					clickButton = button(ctrl1, ctrl2, flag1, flag2);
 					
-					if(botao == 2){
+					if(clickButton == 2){
 						songNum++;
-					}else if(botao == 1){
+					}else if(clickButton == 1){
 						ctrlWhile = song(ctrl1, ctrl2, flag1, flag2, songNum);
 					}
 
@@ -626,7 +630,7 @@ void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *
 
 void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm){
 	int minuto, segundos = 0;
-	int pomoNum[6],previous,current,funcao = 0, botao, count =0;
+	int pomoNum[6],previous,current,funcao = 0, clickButton, count =0;
 	bool ctrlWhile = true, ctrlFuncao = true , pause= false;
 	unsigned long int timeToBack = millis();
 	while(ctrlWhile){
@@ -651,12 +655,12 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 		}else if (pause){
 			previous = current;
 		}
-		botao = button(ctrl1, ctrl2, flag1, flag2);
-		if(botao == 2){
+		clickButton = button(ctrl1, ctrl2, flag1, flag2);
+		if(clickButton == 2){
 			ctrlFuncao = true;
 			segundos = 0;
 		}
-		else if(botao == 1){
+		else if(clickButton == 1){
 			pause = !pause;
 		}
 		
@@ -680,22 +684,25 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 				funcao = 0;
 			}
 		}
+
 		while(ctrlFuncao){
 			if(millis() - timeToBack > 60000){
 				return;
 			}
-			botao = button(ctrl1, ctrl2, flag1, flag2);
-
+			clickButton = button(ctrl1, ctrl2, flag1, flag2);
+			if(clickButton != 0){
+				timeToBack = millis();
+			}
 			//pomodoro configurado
-			if(botao == 2){
+			if(clickButton == 2){
 				funcao++;
 				if(funcao >3){
 					funcao = 0;
 				}
-			}else if(botao == 1 && funcao < 3){
+			}else if(clickButton == 1 && funcao < 3){
 				//play
 				ctrlFuncao = false;
-			}else if(botao == 1 ){
+			}else if(clickButton == 1 ){
 				return;
 			}
 
@@ -985,6 +992,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *s
 	ha2 = alarme_minuto / 10;
 	ha3 = alarme_minuto % 10;
 	int controle_funcao = 1, clickButton,songAux = *songAlarm;
+	timeToBack = millis();
 	while (1)
 	{
 		if(millis() - timeToBack > 60000){
@@ -994,6 +1002,9 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *s
 		minuto = ha2 * 10 + ha3;
 
 		clickButton = button(ctrl1, ctrl2, flag1, flag2);
+		if(clickButton != 0){
+			timeToBack = millis();
+		}
 		
 		if (clickButton == 1 && controle_funcao == 1)
 		{
@@ -1114,7 +1125,10 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 		hora = ha0 * 10 + ha1;
 		minuto = ha2 * 10 + ha3;
 		clickButton = button(ctrl1, ctrl2, flag1, flag2);
-		
+		if(clickButton != 0){
+			timeToBack = millis();
+		}
+
 		if (clickButton == 1 && controle_funcao == 1)
 		{
 			if (ha3 + 1 < 10)
