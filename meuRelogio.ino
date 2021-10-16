@@ -654,10 +654,12 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 		
 		if(ctrlFuncao){
 			
-			if( funcao == 0  && count == 4){
+			if( funcao == 0  && count == 5){
 				//mando para o longbreak
 				funcao = 2;
-			}else if(funcao == 0 && count > 0){
+			}else if(count == 0 ){
+				count++;
+			}else if(funcao == 0){
 				//mando para o shortbreak
 				count++;
 				funcao = 1;
@@ -708,6 +710,102 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 	
 }
 
+void job(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm){
+	int minuto = 0, segundos = 0, hora = 4;
+	int pomoNum[6],previous,current,funcao = 0, botao, count =0;
+	bool ctrlWhile = true, ctrlFuncao = true , pause= false;
+	while(ctrlWhile){
+
+		if(!ctrlFuncao && !pause){
+			previous = current;
+			rtc.getTimeInt(pomoNum);
+			current = pomoNum[5];
+			if(current != previous){
+				segundos--;
+				if(segundos < 0){
+					minuto--;
+					if(minuto < 0 && segundos < 0){
+						hora--;
+						if(hora < 0 && minuto < 0 && segundos < 0){
+							ctrlFuncao = true;
+							segundos=0;
+							song(ctrl1, ctrl2, flag1, flag2, songAlarm);
+						}
+					}else{
+						segundos = 59;
+					}
+				}
+			}
+		}else if (pause){
+			previous = current;
+		}
+		botao = button(ctrl1, ctrl2, flag1, flag2);
+		if(botao == 2){
+			ctrlFuncao = true;
+			segundos = 0;
+		}
+		else if(botao == 1){
+			pause = !pause;
+		}
+		
+		
+		if(ctrlFuncao){
+			
+			if( funcao == 0  && count == 5){
+				//mando para o longbreak
+				funcao = 2;
+			}else if(count == 0 ){
+				count++;
+			}else if(funcao == 0){
+				//mando para o shortbreak
+				count++;
+				funcao = 1;
+			}else if( funcao == 1){
+				//mando para o worktime
+				funcao = 0;
+			}else if( funcao == 2 ){
+				count = 0;
+				funcao = 0;
+			}
+		}
+		while(ctrlFuncao){
+			
+			botao = button(ctrl1, ctrl2, flag1, flag2);
+
+			//pomodoro configurado
+			if(botao == 2){
+				funcao++;
+				if(funcao >3){
+					funcao = 0;
+				}
+			}else if(botao == 1 && funcao < 3){
+				//play
+				ctrlFuncao = false;
+			}else if(botao == 1 ){
+				return;
+			}
+
+			if(funcao == 0){
+				minuto = WORKTIME;
+				relogio( minuto/10, minuto%10 , segundos/10 , segundos%10 , 5 , true );
+			}
+			else if(funcao == 1){
+				minuto = SHORTBREAK;
+				relogio( minuto/10, minuto%10 , segundos/10 , segundos%10 , 5 , true );
+			}
+			else if(funcao == 2){
+				minuto = LONGBREAK;
+				relogio( minuto/10, minuto%10 , segundos/10 , segundos%10 , 5 , true );
+			}
+			else if(funcao == 3){
+				relogio( O , U , T , nil , 5 , false );
+			}
+			
+		}
+		relogio( minuto/10, minuto%10 , segundos/10 , segundos%10 , 5, true );
+	}
+	
+}
 void dysplayRelogio(int *num, int *previous, int *current, bool *ctrlSecondsBlink, int timeUpdateDisplay)
 {
 	*previous = num[5];
