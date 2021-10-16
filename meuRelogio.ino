@@ -33,6 +33,7 @@
 #define WORKTIME 25
 #define SHORTBREAK 5
 #define LONGBREAK 15
+#define TIMETOBACK 300000
 
 
 	
@@ -573,7 +574,7 @@ void comands(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *
 	int clickButton = button(ctrl1, ctrl2, flag1, flag2), funcao =0;
 	unsigned long int timeToBack = millis();
 	while(1){
-		if(millis() - timeToBack > 60000){
+		if(millis() - timeToBack > TIMETOBACK){
 			return;
 		}
 		clickButton = button(ctrl1, ctrl2, flag1, flag2);
@@ -686,7 +687,7 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 		}
 		timeToBack = millis();
 		while(ctrlFuncao){
-			if(millis() - timeToBack > 60000){
+			if(millis() - timeToBack > TIMETOBACK){
 				return;
 			}
 			clickButton = button(ctrl1, ctrl2, flag1, flag2);
@@ -995,7 +996,7 @@ void alarme(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int *s
 	timeToBack = millis();
 	while (1)
 	{
-		if(millis() - timeToBack > 60000){
+		if(millis() - timeToBack > TIMETOBACK){
 			return;
 		}
 		hora = ha0 * 10 + ha1;
@@ -1116,7 +1117,7 @@ void confRelogio(int *num, bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2)
 	unsigned long int timeToBack = millis();
 	while (1)
 	{
-		if(millis() - timeToBack > 60000){
+		if(millis() - timeToBack > TIMETOBACK){
 			return;
 		}
 		dia = diaD * 10 + diaU;
