@@ -684,7 +684,7 @@ void pomodoro(bool *ctrl1, bool *ctrl2, bool *flag1, bool *flag2, int songAlarm)
 				funcao = 0;
 			}
 		}
-
+		timeToBack = millis();
 		while(ctrlFuncao){
 			if(millis() - timeToBack > 60000){
 				return;
